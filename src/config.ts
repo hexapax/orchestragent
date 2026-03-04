@@ -50,5 +50,10 @@ export function loadConfig(configPath: string): Config {
     result.auth.token = { enabled: true };
   }
 
+  const oauthIssuer = process.env.ORCHESTRAGENT_OAUTH_ISSUER;
+  if (oauthIssuer) {
+    result.auth.oauth = { ...result.auth.oauth, enabled: true, issuer: oauthIssuer };
+  }
+
   return result;
 }

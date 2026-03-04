@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 import type { Config } from "./config.js";
+import type { OAuthTokenVerifier } from "@modelcontextprotocol/sdk/server/auth/provider.js";
 
 export function validateToken(
   expected: string | undefined,
@@ -11,8 +12,11 @@ export function validateToken(
   return timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
 }
 
-export function tokenAuthMiddleware(config: Config) {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function tokenAuthMiddleware(
+  config: Config,
+  oauthVerifier?: OAuthTokenVerifier
+) {
+  return async (req: Request, res: Response, next: NextFunction) => {
     // Skip auth for health check
     if (req.path === "/health") return next();
 
@@ -37,7 +41,16 @@ export function tokenAuthMiddleware(config: Config) {
       return next();
     }
 
-    // TODO: OAuth token validation will be added in Task 14
+    // OAuth token validation
+    if (config.auth.oauth.enabled && oauthVerifier) {
+      try {
+        const authInfo = await oauthVerifier.verifyAccessToken(token);
+        (req as unknown as Record<string, unknown>).auth = authInfo;
+        return next();
+      } catch {
+        // Fall through to 403
+      }
+    }
 
     res.status(403).json({ error: "Invalid token" });
   };

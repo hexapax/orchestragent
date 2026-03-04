@@ -3,8 +3,10 @@ import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import { mcpAuthRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import type { Config } from "./config.js";
 import { tokenAuthMiddleware } from "./auth.js";
+import { createOAuthProvider } from "./oauth-provider.js";
 import { type Workspace, getWorkspaceDetails } from "./workspaces.js";
 import { AgentManager } from "./agent-manager.js";
 import { PlanManager } from "./plans.js";
@@ -24,7 +26,22 @@ export interface ServerContext {
 export function createApp(config: Config, ctx: ServerContext) {
   const app = express();
   app.use(express.json());
-  app.use(tokenAuthMiddleware(config));
+
+  // OAuth setup — must be mounted BEFORE token auth middleware
+  let oauthProvider;
+  if (config.auth.oauth.enabled && config.auth.oauth.issuer) {
+    oauthProvider = createOAuthProvider();
+    const issuerUrl = new URL(config.auth.oauth.issuer);
+    app.use(
+      mcpAuthRouter({
+        provider: oauthProvider,
+        issuerUrl,
+        resourceServerUrl: new URL("/mcp", issuerUrl),
+      })
+    );
+  }
+
+  app.use(tokenAuthMiddleware(config, oauthProvider));
 
   // Health check
   app.get("/health", (_req, res) => {
