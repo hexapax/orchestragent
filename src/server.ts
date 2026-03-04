@@ -25,6 +25,7 @@ export interface ServerContext {
 
 export function createApp(config: Config, ctx: ServerContext) {
   const app = express();
+  app.set("trust proxy", 1);
   app.use(express.json());
 
   // OAuth setup — must be mounted BEFORE token auth middleware
