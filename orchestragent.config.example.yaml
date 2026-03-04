@@ -1,0 +1,18 @@
+# orchestragent configuration
+# Copy to orchestragent.config.yaml and edit.
+
+workspacePaths:
+  - /opt/repos              # scans children for git repos
+  # - /home/user/project    # direct repo path
+
+server:
+  port: 3100
+  host: 0.0.0.0
+
+auth:
+  oauth:
+    enabled: false
+    # issuer: https://your-tunnel-url.com
+  token:
+    enabled: true
+    # actual token value in env: ORCHESTRAGENT_AUTH_TOKEN

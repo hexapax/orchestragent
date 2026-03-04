@@ -1,0 +1,45 @@
+{
+  "name": "orchestragent",
+  "version": "0.1.0",
+  "description": "Remote MCP server for orchestrating Claude Code agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "orchestragent": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "agent",
+    "orchestration",
+    "devbox"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "express": "^5.2.1",
+    "js-yaml": "^4.1.1",
+    "simple-git": "^3.32.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^25.3.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
